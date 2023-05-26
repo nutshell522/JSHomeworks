@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        .book {
+            display: flex;
+            margin-bottom: 50px;
+        }
+
+        .img {
+            position: relative;
+            width: 300px;
+        }
+
+        p {
+            margin-top: 15px;
+        }
+
+        .content {
+            width: calc(100% - 300px);
+            padding: 10px;
+        }
+
+        .img img {
+            width: 100%;
+        }
+
+        .otherBooks {
+            font-style: italic;
+            font-weight: bold;
+        }
+
+        /* 
+            頁首
+        */
+        #orderBy {
+            background-color: #343434;
+            height: 100px;
+            box-sizing: border-box;
+            /* 垂直置中子元素 */
+            display: flex;
+            align-items: center;
+            /* 黏著於頂部 */
+            position: sticky;
+            top: 0;
+            /* 置於最頂層 */
+            z-index: 9999;
+        }
+
+        /* 頁首標題樣式 */
+        #orderBy h2 {
+            margin-left: 40px;
+            font-size: 30px;
+            color: azure;
+        }
+
+        /* 按鈕樣式 */
+        #orderBy .btn {
+            margin-left: 15px;
+            padding: 5px;
+            font-size: 20px;
+        }
+
+        /* 按鈕點擊後樣式 */
+        .btn-active {
+            background-color: mediumslateblue;
+            color: aliceblue;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="orderBy">
+        <h2>排序</h2>
+        <button class="btn">依書名筆畫(少至多)</button>
+        <button class="btn">依折扣價格(低至高)</button>
+        <button class="btn">依出版日期(新至舊)</button>
+    </div>
+    <div class="books">
+
+    </div>
+
+    <script src="https://sagedaben.com/iSpan/bookJSON.js"></script>
+    <script>
+
+        // 書本資料陣列
+        const bookData = JSON.parse(bookData_str);
+        // 呈現所有書的畫面的節點
+        const books = document.querySelector('.books');
+        // 所有排序按鈕
+        const btns = document.querySelectorAll('#orderBy .btn');
+
+        // 建立作者陣列
+        const authors = [];
+        // 建立作者物件
+        class Author {
+            constructor(name, books = []) {
+                this.name = name;
+                this.books = books;
+            }
+        }
+        // 根據作者將作品分類，並加入作者陣列內。
+        Array.from(bookData).map(x => {
+            if (authors.length == 0 || authors.filter(y => y.name == x.author).length == 0) {
+                authors.push(new Author(x.author, [x.title]));
+                return;
+            }
+            authors.filter(y => y.name == x.author)[0].books.push(x.title);
+        })
+
+        // 在畫面上顯示書籍
+        displayBooks(bookData);
+
+        // 給所有按鈕綁定點擊事件
+        btns.forEach((btn, index) => {
+            btn.addEventListener('click', function () {
+                // 每次點擊，先重置所有按鈕樣式
+                resetBtn();
+                // 被點擊的按鈕加入點擊後樣式
+                btn.classList.add('btn-active')
+                // 將書排列好後依照順序插入頁面
+                displayBooks(reSortBooks(index, bookData));
+            })
+        })
+
+
+
+
+
+
+
+        /* 
+            function
+        */
+        // 重置按鈕樣式
+        function resetBtn() {
+            btns.forEach(btn => {
+                btn.classList.remove('btn-active');
+            })
+        }
+
+        // 重置並重新插入所有書本
+        function displayBooks(bookList = []) {
+            // 清空畫面上內容
+            books.innerHTML = "";
+            // 照順序將書籍插入畫面
+            for (let i = 0; i < bookList.length; i++) {
+                books.append(toDom(toHtmlString(bookList[i])));
+            }
+        }
+
+        // 依照所指定順序建立書本順序
+        function reSortBooks(orderBy = 0, bookList1 = []) {
+            let bookList2 = JSON.parse(JSON.stringify(bookList1));
+            switch (orderBy) {
+                // 依照書名筆畫少至多排序
+                case 0:
+                    return bookList2.sort((a, b) => { return a.title.localeCompare(b.title); });
+
+                // 依照折扣價格由低至高排序
+                case 1:
+                    return bookList2.sort((a, b) => { return a.price[0] * a.price[1] / 100 - b.price[0] * b.price[1] / 100; });
+
+                // 依照出版日期新至舊排序 
+                case 2:
+                    return bookList2.sort((a, b) => { return new Date(b.date) - new Date(a.date); });
+            }
+        }
+
+        // 回傳該作者其他作品標題的字串
+        function getOtherBooksStr(book = {}) {
+            return authors.filter(x => x.name == book.author)[0]    // 篩選同作者的書
+                .books.filter(x => x != book.title)     // 將篩選後的書，篩選出書名與目前選中的書名不同的書
+                .join(',　');   // 將獲得的結果回傳為string
+        }
+
+        // 回傳html結構字串
+        function toHtmlString(book = {}) {
+            // 回傳該作者其他書籍的字串
+            const otherBooks = getOtherBooksStr(book);
+
+            const htmlString = `
+            <div class="book">
+                <div class="img">
+                    <img src="${book.cover}" alt="">
+                </div>
+                <div class="content">
+                    <h2>${book.title}</h2>
+                    <h3>${book.author}</h3>
+                    <p>建議售價: ${book.price[0]} 元 , 折後: ${Math.round(parseInt(book.price[0]) * parseInt(book.price[1]) / 100)} 元</p>
+                    <p>出版日期: ${book.date} </p>
+                    <div class="desc">${book.desc}</div>
+                    <p class="otherBooks">該作者其他作品:</p>
+                    <p class="otherBooks">${otherBooks}</p>
+                </div>
+            </div>
+            `;
+            return htmlString;
+        }
+
+        // 回傳Dom節點
+        function toDom(htmlString) {
+            const dom = document.createElement('div');
+            dom.innerHTML = htmlString;
+            return dom;
+        }
+    </script>
+
+</body>
+
+</html>

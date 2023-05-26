@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: darkgray;
+        }
+
+
+        /* 每本書 */
+        .book {
+            padding: 15px 0;
+            width: 95%;
+            min-width: 900px;
+            margin: auto;
+            background-color: #fff;
+            border: 1px #000 solid;
+            display: flex;
+            margin-bottom: 10px;
+            align-items: center;
+            /* 動畫時間 */
+            transition: 0.2s;
+        }
+
+        /* 每本書 */
+        .book:hover {
+            cursor: pointer;
+        }
+
+        /* h2 及 h3 */
+        .book h2,
+        .book h3 {
+            margin-bottom: 10px;
+        }
+
+
+        /* 內容區 */
+        .content {
+            border-left: 1px solid black;
+            width: calc(100% - 300px);
+            height: 100%;
+            padding: 10px;
+        }
+
+        /* 圖片框 */
+        .img {
+            width: 150px;
+            display: flex;
+            justify-content: center;
+            /* 動畫時間 */
+            transition: 0.2s;
+        }
+
+        /* 圖片 */
+        .img img {
+            width: 50%;
+            /* 動畫時間 */
+            transition: 0.2s;
+        }
+
+        /* 隱藏 */
+        .hidden {
+            display: none;
+        }
+
+        /* 書本物件未被點擊時的hover效果 */
+        .unActive:hover {
+            width: calc(95% + 50px);
+        }
+
+        /* 書本物件未被點擊時的hover效果，圖片寬度變大 */
+        .unActive:hover .img {
+            width: calc(150px + 50px);
+        }
+
+        /* 當書本物件被點擊後樣式 */
+        .active {
+            width: calc(95% + 50px);
+        }
+
+        /* 當書本物件被點擊後，圖片樣式 */
+        .active-img {
+            width: 600px;
+            height: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="books"></div>
+
+    <script src="https://sagedaben.com/iSpan/bookJSON.js"></script>
+    <script>
+
+        // 書本資料陣列
+        const bookData = JSON.parse(bookData_str);
+        // 呈現所有書的畫面的節點
+        const books = document.querySelector('.books');
+
+
+
+        // 在畫面上顯示書籍
+        displayBooks(bookData);
+
+
+        let bookitems = document.querySelectorAll(".book");
+        let ary = Array.from(bookitems)
+
+        // 為每個book綁定點擊事件
+        ary.map((item, index) => {
+            item.addEventListener("click", function () {
+
+
+                /* 
+                    當被點擊時，先清空其他的book的active效果
+                */
+                // 找到所有active的book
+                let activeItems = books.querySelectorAll(".active");
+
+                // 遍歷active item
+                Array.from(activeItems).map(activeItem => {
+                    // 清除active
+                    activeItem.classList.remove("active");
+                    activeItem.querySelector(".img").classList.remove("active-img");
+
+                    // 加回unActive
+                    activeItem.classList.add("unActive");
+
+                    // 隱藏說明文字
+                    activeItem.querySelector(".desc").classList.add("hidden");
+
+                })
+
+
+                /* 
+                    如果點擊的是原本被active的book，效果改為使其變回unActive
+                */
+                // 如果點擊是原本被active的book，於此處中斷，不繼續往下執行。
+                if (activeItems.length == 1 && activeItems[0] == this) {
+                    return;
+                }
+
+                /* 
+                    使新的被點擊的書，獲得active效果
+                */
+                this.classList.remove("unActive")
+                this.classList.add("active")
+                this.querySelector(".desc").classList.remove("hidden");
+                this.querySelector(".img").classList.add("active-img");
+            })
+        });
+
+
+
+
+
+
+
+
+        /* 
+            function
+        */
+
+        // 在畫面上顯示書籍
+        function displayBooks(bookList = []) {
+            // 清空畫面上內容
+            books.innerHTML = "";
+            // 照順序將書籍插入畫面
+            for (let i = 0; i < bookList.length; i++) {
+                books.append(toDom(toHtmlString(bookList[i])));
+            }
+        }
+
+        // 回傳html結構字串
+        function toHtmlString(book = {}) {
+            const htmlString = `
+            <div class="book unActive">
+                <div class="img">
+                    <img src="${book.cover}" alt="">
+                </div>
+                <div class="content">
+                    <h2>${book.title}</h2>
+                    <h3>${book.author}</h3>
+                    <div class="desc hidden">${book.desc}</div>
+                </div>
+            </div>
+            `;
+            return htmlString;
+        }
+
+        // 回傳Dom節點
+        function toDom(htmlString) {
+            const dom = document.createElement('div');
+            dom.innerHTML = htmlString;
+            return dom;
+        }
+    </script>
+
+</body>
+
+</html>

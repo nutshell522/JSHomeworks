@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .book {
+            border: 1px #000 solid;
+            display: flex;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+
+        .img {
+            width: 300px;
+            border-right: 1px #000 solid;
+            display: flex;
+            justify-content: center;
+        }
+
+        .content {
+            width: calc(100% - 300px);
+            padding: 10px;
+        }
+
+        .img img {
+            width: 60%;
+        }
+
+        .big {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+
+            visibility: hidden;
+        }
+
+        .bigShow {
+            transition: background-color 1s;
+            visibility: visible;
+
+        }
+
+        .big .area {
+            width: 90%;
+            min-width: 800px;
+            height: 90%;
+            min-height: 500px;
+            box-sizing: border-box;
+            padding: 10px;
+            display: flex;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 5px 5px 2px 1px rgba(0, 0, 0, 0.2);
+
+        }
+
+        .big .area .big-img {
+            position: relative;
+            width: 40%;
+            min-width: 400px;
+            height: 100%;
+            /* display: flex;
+            justify-content: center;
+            align-items: center; */
+        }
+
+        .big .area .big-content {
+            margin-top: 40px;
+            margin-bottom: 40px;
+            margin-left: 20px;
+            width: 60%;
+            /* width: calc(100% -300px); */
+            overflow-y: scroll;
+        }
+
+        .big .area .big-content>div {
+            width: 85%;
+
+        }
+
+        .big .area .big-img img {
+            transition: top 0.2s, left 0.2s, width 0.2s;
+            position: absolute;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="books"></div>
+    <div class="big">
+        <div class="area">
+            <div class="big-img">
+                <img src="" alt="">
+            </div>
+            <div class="big-content">
+                <div>
+
+                    <h2>title</h2>
+                    <h3 class="auth">auth</h3>
+                    <h3 class="date">date</h3>
+                    <div class="desc">desc</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://sagedaben.com/iSpan/bookJSON.js"></script>
+    <script>
+
+        // 書本資料陣列
+        const bookData = JSON.parse(bookData_str);
+        // 呈現所有書的畫面的節點
+        const books = document.querySelector('.books');
+
+        let big = document.querySelector(".big");
+        let bigImg = document.querySelector(".big .big-img img");
+        let bigTitle = document.querySelector(".big h2");
+        let bigAuth = document.querySelector(".big .auth");
+        let bigDate = document.querySelector(".big .date");
+        let bigDesc = document.querySelector(".big .desc");
+
+
+        // 在畫面上顯示書籍
+        displayBooks(bookData);
+
+        big.addEventListener("click", function () {
+            this.classList.remove("bigShow");
+            bigImg.removeAttribute("style");
+        })
+
+
+
+
+        // 重置並重新插入所有書本
+        function displayBooks(bookList = []) {
+            // 清空畫面上內容
+            books.innerHTML = "";
+            // 照順序將書籍插入畫面
+            for (let i = 0; i < bookList.length; i++) {
+                books.append(toDom(toHtmlString(bookList[i])));
+            }
+
+            let bookitems = document.querySelectorAll(".book");
+            Array.from(bookitems).map((item, index) => {
+                item.addEventListener("click", function () {
+                    let id = this.getAttribute("data-id");
+                    ShowData(id, this);
+                })
+            });
+        }
+
+
+        function ShowData(id, selectBookNode) {
+
+            let book = Array.from(bookData).filter(x => x._id == id)[0];
+
+            let orginImg = selectBookNode.querySelector("img");
+
+
+            bigImg.setAttribute("src", book.cover);
+            bigDate.innerHTML = book.date;
+            bigTitle.innerHTML = book.title;
+            bigAuth.innerHTML = book.author;
+            bigDesc.innerHTML = book.desc;
+
+            bigImg.style.width = orginImg.offsetWidth + "px";
+            bigImg.style.left = orginImg.offsetLeft - 30 + "px";
+            bigImg.style.top = orginImg.offsetTop - window.scrollY - 20 + "px";
+
+
+            big.classList.add("bigShow");
+
+            setTimeout(() => {
+                bigImg.style.width = "70%";
+                bigImg.style.left = (bigImg.parentElement.offsetWidth - bigImg.offsetWidth) / 4 + "px";
+                bigImg.style.top = (bigImg.parentElement.offsetHeight - bigImg.offsetHeight) / 6 + "px";
+
+            }, 0)
+
+
+
+        }
+
+        // 回傳html結構字串
+        function toHtmlString(book = {}) {
+            const htmlString = `
+            <div class="book" data-id="${book._id}">
+                <div class="img">
+                    <img src="${book.cover}" alt="">
+                </div>
+                <div class="content">
+                    <h2>${book.title}</h2>
+                    <h3>${book.author}</h3>
+                    <p>建議售價: ${book.price[0]} 元 , 折後: ${Math.round(parseInt(book.price[0]) * parseInt(book.price[1]) / 100)} 元</p>
+                    <p>出版日期: ${book.date} </p>
+                </div>
+            </div>
+            `;
+            return htmlString;
+        }
+
+        // 回傳Dom節點
+        function toDom(htmlString) {
+            const dom = document.createElement('div');
+            dom.innerHTML = htmlString;
+            return dom;
+        }
+    </script>
+
+</body>
+
+</html>
