@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>國家景點資訊</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            font-family: 'Noto Sans TC', sans-serif;
+            text-decoration: none;
+            transition: color .05s, background-color .3s;
+        }
+
+        :root {
+            --transition-time: 0.4s;
+        }
+
+
+
+        .dflex-center {
+            justify-content: center;
+            align-items: center;
+        }
+
+        .wrapper {
+            width: 1150px;
+            margin: auto;
+            height: 100%;
+        }
+
+        header {
+            height: 80px;
+        }
+
+        header .wrapper {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h1 {
+            font-weight: normal;
+        }
+
+        #light-switch {
+            position: relative;
+            width: 55px;
+            height: 31px;
+            appearance: none;
+            background-color: #999;
+            border-radius: 30px;
+        }
+
+        #light-switch:hover {
+            cursor: pointer
+        }
+
+        #light-switch::before {
+            content: '';
+            position: absolute;
+            width: 25px;
+            height: 25px;
+            border-radius: 50px;
+            top: 3px;
+            left: 3px;
+            background-color: #eee;
+            transition: var(--transition-time);
+        }
+
+        #light-switch:checked::before {
+            left: 27px;
+        }
+
+        nav {
+            height: 90px;
+        }
+
+        nav .wrapper {
+            display: flex;
+            align-items: center;
+        }
+
+        nav input,
+        nav button {
+            border-radius: 0px;
+            border: black solid 1.5px;
+            height: 35px;
+            box-sizing: border-box;
+        }
+
+        nav input {
+            font-size: 15px;
+            width: 270px;
+            padding: 10px;
+        }
+
+        nav input,
+        nav input:focus {
+            border-radius: 5px 0 0 5px;
+        }
+
+        nav input:focus {
+            outline: none;
+            border: 2px #999 solid;
+        }
+
+
+        nav .btn {
+            font-size: 15px;
+            margin-left: 0px;
+            border-left: none;
+            width: 80px;
+            border-radius: 0 5px 5px 0;
+            transition: .2s;
+        }
+
+        nav .btn:hover {
+            cursor: pointer;
+            font-size: 17px;
+        }
+
+        nav .btn:active {
+            padding-top: 4px;
+        }
+
+        article .attraction {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 50px;
+            margin-bottom: 15px;
+            border-radius: 15px;
+        }
+
+        article .attraction p {
+            transition: .3s;
+            font-size: 18px;
+            font-weight: normal;
+        }
+
+        article .attraction p:last-child {
+            font-size: 12px;
+        }
+
+        article .attraction:hover {
+            cursor: pointer;
+        }
+
+        article .attraction:hover p {
+            font-size: 22px;
+        }
+
+        article .attraction:hover p:last-child {
+            font-size: 15px;
+        }
+
+        article .attraction:hover .view-wrapper {
+            width: 15%;
+        }
+
+        article .view-wrapper,
+        article .view-wrapper img {
+            transition: .3s;
+        }
+
+        article .view-wrapper {
+            width: 10%;
+        }
+
+        article .view-wrapper img {
+            width: 100%;
+        }
+
+        .info-area-wrapper {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #info-area {
+            display: flex;
+            width: 93%;
+            min-width: 900px;
+            box-sizing: border-box;
+            padding: 40px;
+            position: relative;
+            justify-content: space-between;
+
+        }
+
+        #close {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background-color: #eee;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            top: 5px;
+            right: 5px;
+            border-radius: 10px;
+        }
+
+        #close:link {
+            color: #666;
+            font-weight: bold;
+        }
+
+        #close span {
+            border-radius: 50%;
+            transition: .3s;
+        }
+
+        #close:hover {
+            color: #fff;
+        }
+
+        #close:hover span {
+            background-color: #777;
+            padding: 0 5px;
+        }
+
+        #info-area .img-wrapper {
+            width: 40%;
+            max-width: 700px;
+            box-sizing: border-box;
+            padding: 15px;
+
+        }
+
+        #info-area .img-wrapper .mainImg {
+            max-height: 290px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #info-area .img-wrapper>.mainImg,
+        #info-area .img-wrapper>.mainImg>img,
+        #info-area .img-wrapper .img-list {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        #info-area .img-wrapper>img {
+            margin-bottom: 5px;
+        }
+
+        #info-area .img-wrapper .img-list {
+            max-width: 100%;
+            display: flex;
+            justify-content: start;
+            margin-bottom: 10px;
+        }
+
+        #info-area .img-wrapper .img-list div {
+            width: 100px;
+            margin-right: 5px;
+            height: 70px;
+            overflow: hidden;
+        }
+
+        #info-area .img-wrapper .img-list div img {
+            width: 100%;
+        }
+
+        #info-area .img-wrapper .img-list div:hover {
+            cursor: pointer;
+        }
+
+        #info-area .img-wrapper figcaption {
+            text-align: center;
+        }
+
+        #info-area .text-area {
+            width: 60%;
+            max-width: 1000px;
+            max-height: 75vh;
+            overflow-y: scroll;
+            box-sizing: border-box;
+            padding: 0 20px;
+        }
+
+        #info-area .text-area p {
+            margin-top: 10px;
+        }
+
+        .area-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: end;
+            margin-bottom: 10px;
+        }
+
+        .area-title h2 {
+            font-size: 35px;
+        }
+
+        .area-title span {
+            font-size: 13px;
+        }
+
+        #info-area .text-area p {
+            margin: 0;
+            border: 1px black solid;
+            border-bottom: none;
+        }
+
+        #info-area .text-area p:last-child {
+            border-bottom: 1px black solid;
+        }
+
+        #info-area .text-area p:last-child>div {
+            text-indent: 2em;
+            text-align: justify;
+        }
+
+        #info-area .text-area .group {
+            display: flex;
+            align-items: center;
+        }
+
+
+        #info-area .text-area .group-title {
+            text-align: center;
+        }
+
+        #info-area .text-area span.group-title {
+            height: 100%;
+            width: 100px;
+        }
+
+        #info-area .text-area span.group-info {
+            width: calc(100% - 100px);
+            border-left: 1px solid black;
+        }
+
+
+        #info-area .text-area .opentime {
+            font-size: 12px;
+        }
+
+        #info-area .text-area .group-title,
+        #info-area .text-area .group-info {
+            box-sizing: border-box;
+            padding: 6px 15px;
+        }
+
+
+        .loading-wrapper {
+            height: 30vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .loading,
+        .loading>div {
+            position: relative;
+            box-sizing: border-box;
+        }
+
+
+        .loading {
+            display: block;
+            font-size: 0;
+            color: #000;
+        }
+
+        .loading.la-dark {
+            color: #333;
+        }
+
+        .loading>div {
+            display: inline-block;
+            float: none;
+            background-color: currentColor;
+            border: 0 solid currentColor;
+        }
+
+        .loading {
+            width: 90px;
+            height: 18px;
+        }
+
+        .loading>div {
+            width: 10px;
+            height: 10px;
+            margin: 4px;
+            border-radius: 100%;
+            opacity: 0;
+            animation: ball-fall 1s ease-in-out infinite;
+        }
+
+        .loading>div:nth-child(1) {
+            animation-delay: -200ms;
+        }
+
+        .loading>div:nth-child(2) {
+            animation-delay: -100ms;
+        }
+
+        .loading>div:nth-child(3) {
+            animation-delay: 0ms;
+        }
+
+        @keyframes ball-fall {
+            0% {
+                opacity: 0;
+                transform: translateY(-145%);
+            }
+
+            10% {
+                opacity: 0.5;
+            }
+
+            20% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+            80% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+            90% {
+                opacity: 0.5;
+            }
+
+            100% {
+                opacity: 0;
+                transform: translateY(145%);
+            }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .dflex,
+        .dflex-center,
+        .show {
+            display: flex;
+        }
+    </style>
+</head>
+
+<body class="background">
+
+    <!-- 標題 -->
+    <header class="background2">
+        <div class="wrapper">
+            <h1>國家景點資訊</h1>
+            <input id="light-switch" type="checkbox" disabled>
+        </div>
+    </header>
+
+    <!-- 搜尋 -->
+    <nav>
+        <div class="wrapper">
+            <input type="text" class="search-bar foreground text" placeholder="關鍵字搜尋">
+            <button class="background2 text btn search-btn">Search</button>
+        </div>
+    </nav>
+
+    <!-- 載入畫面 -->
+    <div class="loading-wrapper wrapper">
+        <div class="loading">
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+    </div>
+
+    <!-- 主列表 -->
+    <article>
+        <div class="wrapper"></div>
+    </article>
+
+    <!-- 顯示資訊畫面 -->
+    <div class="info-area-wrapper">
+        <div id="info-area" class="background1">
+            <a id="close" href="javascript:;"><span>Ｘ</span></a>
+            <figure class="img-wrapper">
+                <div class="mainImg">
+                    <img src="">
+                </div>
+                <div class="img-list">
+                </div>
+                <figcaption>item.Picdescribe1</figcaption>
+            </figure>
+            <div class="text-area">
+                <div class="area-title">
+                    <h2>item.Name</h2>
+                    <span>資料更新時間: <span class="updatetime">item.Changetime</span></span>
+                </div>
+                <p class="group">
+                    <span class="group-title">地址</span>
+                    <span class="group-info address">item.Add</span>
+                </p>
+                <p class="group">
+                    <span class="group-title">電話</span>
+                    <span class="group-info tel">item.Tel</span>
+                </p>
+                <p class="group">
+                    <span class="group-title opentime-title">營業時間</span>
+                    <span class="group-info opentime">item.Opentime</span>
+                </p>
+                <p class="group-title">景點介紹</p>
+                <p class="group-info describe">
+                    item.Toldescribe
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let bg1 = ['#fff', '#666'];
+        let bg2 = ['#ddd', '#444'];
+        let fontColor = ['#222', '#ddd'];
+        let fg = ['#fff', '#888'];
+
+
+        let datas;
+        let showImgList;
+        const body = document.querySelector("body");
+        const viewList = document.querySelector("article .wrapper");
+        const loading = document.querySelector(".loading-wrapper");
+        const lightSwitch = document.querySelector("#light-switch");
+        const searchBar = document.querySelector(".search-bar");
+        const searchBtn = document.querySelector(".search-btn");
+
+        const infoArea = document.querySelector(".info-area-wrapper");
+        const textArea = document.querySelector(".text-area");
+        const viewName = infoArea.querySelector("h2");
+        const closeBtn = infoArea.querySelector("#close");
+        const mainImg = infoArea.querySelector(".img-wrapper>.mainImg>img");
+        const imgList = infoArea.querySelector(".img-list");
+        const imgStr = infoArea.querySelector("figcaption");
+        const updateTime = infoArea.querySelector(".updatetime");
+        const address = infoArea.querySelector(".address");
+        const tel = infoArea.querySelector(".tel");
+        const opentime = infoArea.querySelector(".opentime");
+        const describe = infoArea.querySelector(".describe");
+
+        // 獲得 datas
+        (function () {
+            const xhttp = new XMLHttpRequest();
+            xhttp.open("GET", "https://sagedaben.com/iSpan/api/spot.php");
+            xhttp.send();
+            xhttp.onreadystatechange = function () {
+                if (this.status === 200) {
+                    xhttp.onload = function () {
+                        // 取得3600~3699的資料，且去除沒有第一張照片的資料
+                        datas = JSON.parse(this.response)
+                            .XML_Head.Infos.Info
+                            .filter((item, index) => index >= 3600
+                                && index <= 3699
+                                && item.Picture1 != "");
+                        // 載入完成，隱藏載入動畫
+                        loading.classList.add("hidden");
+                        // 顯示資料
+                        new ViewList(datas).display();
+                        // 搜尋按鈕綁定功能
+                        searchBtn.addEventListener('click', searchBarClick);
+                        lightSwitch.removeAttribute("disabled");
+                        lightSwitch.addEventListener('click', changeColor);
+                    }
+                }
+                else {
+                    alert("載入錯誤");
+                }
+            }
+        })();
+
+        // 替主資訊區關閉按鈕綁定關閉事件
+        closeBtn.onclick = function () {
+            infoArea.classList.remove("show");
+        }
+
+
+        function changeColor() {
+            const bg1List = document.querySelectorAll(".background1");
+            const bg2List = document.querySelectorAll(".background2");
+            const textList = document.querySelectorAll(".text");
+            const fgList = document.querySelectorAll(".foreground");
+            body.style.backgroundColor = lightSwitch.checked ? bg1[1] : bg1[0];
+            body.style.color = lightSwitch.checked ? fontColor[1] : fontColor[0];
+            bg1List.forEach(item => {
+                item.style.backgroundColor = lightSwitch.checked ? bg1[1] : bg1[0];
+            })
+            bg2List.forEach(item => {
+                item.style.backgroundColor = lightSwitch.checked ? bg2[1] : bg2[0];
+            })
+            textList.forEach(item => {
+                item.style.color = lightSwitch.checked ? fontColor[1] : fontColor[0];
+            })
+            fgList.forEach(item => {
+                item.style.backgroundColor = lightSwitch.checked ? fg[1] : fg[0];
+            })
+        }
+        // View
+        class ViewList {
+            constructor(items = []) {
+                this._viewList = items;
+            }
+            // List view 顯示景點
+            display() {
+                // 清空 viewList
+                viewList.innerHTML = "";
+                // 判斷有無資料
+                if (this._viewList.length == 0) {
+                    viewList.innerHTML = '<div class="dflex-center" style="height:200px;"><i>查無搜索資料</i></div>';
+                    return;
+                }
+                for (let i = 0; i < this._viewList.length; i++) {
+                    viewList.append(this._toDom(this._toHTMLStr(this._viewList[i])));
+                }
+                showToInfoArea();
+                changeColor();
+            }
+
+            // 建立ViewList內html字串
+            _toHTMLStr(item = {}) {
+                let changetime = new Date(item.Changetime);
+                // 固定日期格式
+                let formattedDate = changetime.format();
+                return `<div class="attraction background2" data-id="${item.Id}">
+                            <div class="view-wrapper">
+                                <img src="${item.Picture1}">
+                            </div>
+                            <p>${item.Name}</p>
+                            <p>更新時間:${formattedDate}</p>
+                        </div>`;
+            }
+
+            // 回傳ViewList下獨立項目的DOM
+            _toDom(htmlString) {
+                const dom = document.createElement('div');
+                dom.innerHTML = htmlString;
+                return dom;
+            }
+        }
+
+        // Controller
+        // 點擊項目後於主區顯示完整資訊
+        function showToInfoArea(doms = document.querySelectorAll(".attraction")) {
+            doms.forEach(dom => {
+                dom.addEventListener("click", function () {
+                    let id = this.getAttribute("data-id");
+                    new ViewInfo(id).showInfo();
+                    addEventClickChangeMainImg();
+                    infoArea.classList.add("show");
+                })
+            });
+        };
+
+        // Controller
+        // 替圖片list綁定點擊後換照片及描述事件
+        function addEventClickChangeMainImg() {
+            const imgs = imgList.querySelectorAll("div");
+            imgs.forEach(img => img.addEventListener('click', function () {
+                let index = parseInt(this.getAttribute("index"));
+                const { src, descr } = showImgList.getImg(index);
+                mainImg.setAttribute("src", src);
+                imgStr.innerHTML = descr;
+            }));
+        };
+
+        // Controller
+        // 替搜尋按鈕綁定顯示搜尋事件
+        function searchBarClick() {
+            let items = datas.filter(item => item.Name.indexOf(searchBar.value) != -1);
+            new ViewList(items).display();
+        }
+
+        // View
+        // 顯示照片及完整資訊的class
+        class ViewInfo {
+            constructor(id) {
+                this._id = id;
+            }
+            getInfo() {
+                let data = datas.filter(item => item.Id == this._id);
+                if (data.length != 1) {
+                    return;
+                }
+                return data[0];
+            }
+            showInfo() {
+                let data = this.getInfo();
+                showImgList = new ImgList(data);
+                viewName.innerHTML = data.Name;
+                mainImg.setAttribute("src", data.Picture1);
+                imgList.innerHTML = this.getImgListHTMLStr();
+                imgStr.innerHTML = data.Picdescribe1;
+                updateTime.innerHTML = checkDataInfo(new Date(data.Changetime).format());
+                address.innerHTML = checkDataInfo(data.Add);
+                tel.innerHTML = checkDataInfo(data.Tel);
+                opentime.innerHTML = checkDataInfo(data.Opentime);
+                let descrStr = checkDataInfo(data.Toldescribe);
+                describe.innerHTML = checkDataInfo(data.Toldescribe).autoParagraph();
+            }
+
+            getImgListHTMLStr() {
+                let htmlStr = "";
+                for (let i = 0; i < showImgList._imgSrcs.length; i++) {
+                    htmlStr += `<div class="dflex-center" index="${i}"><img src="${showImgList._imgSrcs[i]}"></div>`;
+                }
+                return htmlStr;
+            }
+        }
+
+        // 保存圖片網址及描述資訊的class
+        class ImgList {
+            _imgSrcs = []
+            _imgDescrs = []
+            constructor(data = []) {
+                if (data.Picture1 != "") {
+                    this._imgSrcs.push(data.Picture1);
+                    this._imgDescrs.push(data.Picdescribe1);
+                }
+                if (data.Picture2 != "") {
+                    this._imgSrcs.push(data.Picture2);
+                    this._imgDescrs.push(data.Picdescribe2);
+                }
+                if (data.Picture3 != "") {
+                    this._imgSrcs.push(data.Picture3);
+                    this._imgDescrs.push(data.Picdescribe3);
+                }
+            }
+
+            /* 
+                依條件回傳照片網址及敘述
+                    條件case 1: 網址
+                    條件case 2: 索引
+            */
+            getImg(condition = 0) {
+                switch (typeof condition) {
+                    case 'string':
+                        let index = this._imgSrcs.indexOf(condition);
+                        if (index != -1 && this._imgSrcs[index] == condition) {
+                            return { src: this._imgSrcs[index], Descr: this._imgDescrs[index] };
+                        }
+                        break;
+                    case 'number':
+                        if (condition >= 0 && condition < this._imgSrcs.length) {
+                            return { src: this._imgSrcs[condition], descr: this._imgDescrs[condition] };
+                        }
+                        break;
+                }
+            }
+        }
+
+        // 如果資料是undefined，回傳 暫時無內容提供
+        checkDataInfo = info => {
+            return typeof info === "undefined" || info == null || info.trim() === '' ?
+                "<i>暫時無內容提供</i>" : info;
+        }
+        /* 
+            回傳時間格式字串的擴充method
+                yyyy 年 / MM 月 / dd 日 / HH 時 / mm 分 / ss 秒
+        */
+        Date.prototype.format = function (formatStr = "yyyy-MM-dd HH:mm") {
+            const year = this.getFullYear();
+            const month = String(this.getMonth() + 1).padStart(2, '0');
+            const day = String(this.getDate()).padStart(2, '0');
+            const hours = String(this.getHours()).padStart(2, '0');
+            const minutes = String(this.getMinutes()).padStart(2, '0');
+            const seconds = String(this.getSeconds()).padStart(2, '0');
+
+            formatStr = formatStr.replace('yyyy', year);
+            formatStr = formatStr.replace('MM', month);
+            formatStr = formatStr.replace('dd', day);
+            formatStr = formatStr.replace('HH', hours);
+            formatStr = formatStr.replace('mm', minutes);
+            formatStr = formatStr.replace('ss', seconds);
+
+            return formatStr;
+        };
+
+        /* 
+            將文章以句號為結尾換行的擴充method
+        */
+        String.prototype.autoParagraph = function () {
+            let ary = this.split('。');
+            if (ary.length == 0) {
+                return this;
+            }
+            let str = "";
+            ary.map(txt => {
+                str += "<div>" + txt + "。</div>";
+            })
+            return str;
+        }
+
+
+    </script>
+</body>
+
+</html>
